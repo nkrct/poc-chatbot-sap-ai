@@ -1,0 +1,29 @@
+
+<button id="chatLauncher" class="chat-launcher" aria-haspopup="dialog" aria-controls="chat-window"
+        [attr.aria-expanded]="open" title="Open Chat" (click)="toggle()">💬</button>
+
+<section id="chat-window" class="chat-float" role="dialog" aria-label="Chat Window"
+         [attr.aria-modal]="false" [style.display]="open ? 'block' : 'none'" [class.minimized]="minimized" #chatWindow>
+
+    <header id="chatDragHandle" class="chat-header" (mousedown)="startDrag($event)">
+        <div class="chat-title">Chat</div>
+        <div class="chat-actions">
+            <button id="minBtn" class="icon-btn" title="Minimize" aria-label="Minimize" (click)="toggleMin()">▁</button>
+            <button id="closeBtn" class="icon-btn" title="Close" aria-label="Close" (click)="close()">✕</button>
+        </div>
+    </header>
+
+    <main id="chat-body" class="chat-body" tabindex="-1" #chatBody aria-live="polite">
+      <div *ngFor="let m of messages" class="msg" [class.msg-user]="m.who === 'user'" [class.msg-bot]="m.who === 'bot'">{{ m.text }}</div>
+    </main>
+
+    <footer class="input">
+        <label for="input" class="sr-only">Message</label>
+        <input id="input" type="text" placeholder="Type message here..." #chatInput
+               (keydown.enter)="send(chatInput)" autocomplete="off" />
+        <button id="sendBtn" class="send-btn" (click)="send(chatInput)">Send</button>
+    </footer>
+
+    <div id="resizer" class="resizer" aria-hidden="true" (mousedown)="startResize($event)"></div>
+</section>
+

@@ -1,5 +1,7 @@
 import { Component, ElementRef, ViewChild, HostListener } from '@angular/core';
-import {NgForOf} from "@angular/common";
+import {NgForOf, NgIf} from "@angular/common";
+import {MatIcon} from '@angular/material/icon';
+
 
 type Drag = { active: boolean; dx: number; dy: number };
 type Size = { active: boolean; w: number; h: number; sx: number; sy: number };
@@ -9,9 +11,11 @@ type Size = { active: boolean; w: number; h: number; sx: number; sy: number };
     standalone: true,
     templateUrl: './chat-bot.html',
     styleUrls: ['./chat-bot.css'],
-    imports: [
-        NgForOf
-    ]
+  imports: [
+    NgForOf,
+    MatIcon,
+    NgIf
+  ]
 })
 export class ChatComponent {
     open = false;
@@ -30,7 +34,6 @@ export class ChatComponent {
         if (this.open) setTimeout(() => this.chatInput?.nativeElement.focus());
     }
     close() { this.open = false; }
-    toggleMin() { this.minimized = !this.minimized; }
 
     send(inputEl: HTMLInputElement) {
         const v = inputEl.value.trim();
@@ -38,7 +41,7 @@ export class ChatComponent {
         this.messages.push({ who: 'user', text: v });
         inputEl.value = '';
         setTimeout(() => {
-            this.messages.push({ who: 'bot', text: 'Echo: ' + v });
+            this.messages.push({ who: 'bot', text: 'Bot: '});
             this.scrollToBottom();
         }, 200);
         this.scrollToBottom();

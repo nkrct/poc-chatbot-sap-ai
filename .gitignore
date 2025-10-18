@@ -1,3 +1,7 @@
 /UI/node_modules
 /UI/package-lock.json
 /.idea
+/.idea/misc.xml
+/.idea/modules.xml
+/.idea/poc-chatbot-sap-ai.iml
+/.idea/vcs.xml

@@ -1,46 +1,60 @@
 .chat-launcher {
   position: fixed;
-  bottom: 100px;
-  right: 20px;
+  bottom: 24px;
+  right: 24px;
   z-index: 2147483647;
   width: 56px;
   height: 56px;
-  border-radius: 999px;
+  border-radius: 50%;
   border: none;
   cursor: pointer;
   display: grid;
   place-items: center;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-  outline: none;
   background: #0a84ff;
   color: white;
-  font-size: 24px;
-  line-height: 1;
-  transition: transform 0.12s ease, filter 0.12s ease;
+  font-size: 28px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.chat-launcher:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
 .chat-launcher:active {
-  transform: scale(0.96);
+  transform: scale(0.95);
+}
+
+.chat-launcher mat-icon {
+  font-size: 28px;
+  line-height: 1;
+  color: inherit;
 }
 
 .chat-float {
-  display: none;
   position: fixed;
-  right: 20px;
-  bottom: 90px;
+  bottom: 96px;
+  right: 24px;
   z-index: 2147483646;
-  width: min(360px, calc(100vw - 32px));
+  width: 360px;
   height: 480px;
+  display: none;
+  flex-direction: column;
   background: #ffffff;
   border: 1px solid #e6e8eb;
-  border-radius: 14px;
+  border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   overflow: hidden;
-  flex-direction: column;
+  transition: opacity 0.18s ease, transform 0.2s ease;
+  opacity: 0;
+  transform: translateY(8px) scale(0.98);
 }
 
 .chat-float.open {
   display: flex;
+  opacity: 1;
+  transform: translateY(0) scale(1);
 }
 
 .chat-header {
@@ -74,7 +88,6 @@
   place-items: center;
   cursor: pointer;
   font-size: 16px;
-  line-height: 1;
 }
 
 .icon-btn:hover {
@@ -176,3 +189,4 @@
     bottom: 12px;
   }
 }
+

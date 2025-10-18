@@ -1,19 +1,43 @@
-import { Component, ElementRef, ViewChild, HostListener } from '@angular/core';
+import {Component, ElementRef, ViewChild, HostListener} from '@angular/core';
 import {NgForOf, NgIf} from "@angular/common";
-import {MatIcon} from '@angular/material/icon';
+import {MatIconModule} from '@angular/material/icon';
+import {animate, style, transition, trigger} from '@angular/animations';
 
 
 type Drag = { active: boolean; dx: number; dy: number };
 type Size = { active: boolean; w: number; h: number; sx: number; sy: number };
 
 @Component({
-    selector: 'app-chat',
-    standalone: true,
-    templateUrl: './chat-bot.html',
-    styleUrls: ['./chat-bot.css'],
+  selector: 'app-chat',
+  standalone: true,
+  templateUrl: './chat-bot.html',
+  styleUrls: ['./chat-bot.css'],
+  animations:[
+    trigger('slideFade', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(8px) scale(0.98)' }),
+        animate('180ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+          style({ opacity: 1, transform: 'translateY(0) scale(1)' }))
+      ]),
+      transition(':leave', [
+        animate('140ms ease-out',
+          style({ opacity: 0, transform: 'translateY(8px) scale(0.98)' }))
+      ])
+    ]),
+
+    trigger('iconSpin', [
+      transition(':enter', [
+        style({ transform: 'rotate(-20deg)', opacity: 0 }),
+        animate('160ms ease-out', style({ transform: 'rotate(0)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('120ms ease-in', style({ transform: 'rotate(20deg)', opacity: 0 }))
+      ])
+    ])
+  ],
   imports: [
     NgForOf,
-    MatIcon,
+    MatIconModule,
     NgIf
   ]
 })

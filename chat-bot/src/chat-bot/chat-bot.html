@@ -1,16 +1,16 @@
 
-<button *ngIf="!open" id="chatLauncher" class="chat-launcher" aria-haspopup="dialog" aria-controls="chat-window"
+<button *ngIf="!open" @iconSpin id="chatLauncher" class="chat-launcher" aria-haspopup="dialog" aria-controls="chat-window"
         [attr.aria-expanded]="open" title="Open Chat" (click)="toggle()">
   <mat-icon>chat</mat-icon>
 </button>
 
-<section id="chat-window" class="chat-float" role="dialog" aria-label="Chat Window"
+<section @slideFade id="chat-window"  class="chat-float" role="dialog" aria-label="Chat Window"
          [attr.aria-modal]="false" [class.open]="open" [class.minimized]="minimized" #chatWindow>
 
   <header id="chatDragHandle" class="chat-header" (mousedown)="startDrag($event)">
     <div class="chat-title">Chat</div>
     <div class="chat-actions">
-      <button id="closeBtn" class="icon-btn" title="Close" aria-label="Close" (click)="close()">✕</button>
+      <button @leave id="closeBtn" class="icon-btn" title="Close" aria-label="Close" (click)="close()">✕</button>
     </div>
   </header>
 

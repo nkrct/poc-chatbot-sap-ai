@@ -3,6 +3,7 @@ package nkrct.me.chatbot.entity;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,6 +17,7 @@ import java.util.List;
 @Setter
 @Builder
 @AllArgsConstructor
+@Table(name = "chats")
 public class Chat {
     @Id
     private Long id;

@@ -1,31 +1,40 @@
-
-<button *ngIf="!open" @iconSpin id="chatLauncher" class="chat-launcher" aria-haspopup="dialog" aria-controls="chat-window"
-        [attr.aria-expanded]="open" title="Open Chat" (click)="toggle()">
+<button *ngIf="!open" id="chatLauncher" class="chat-launcher" aria-haspopup="dialog" aria-controls="chat-window" [attr.aria-expanded]="open" title="Open Chat" (click)="toggle()">
   <mat-icon>chat</mat-icon>
 </button>
 
-<section @slideFade id="chat-window"  class="chat-float" role="dialog" aria-label="Chat Window"
-         [attr.aria-modal]="false" [class.open]="open" [class.minimized]="minimized" #chatWindow>
-
-  <header id="chatDragHandle" class="chat-header" (mousedown)="startDrag($event)">
-    <div class="chat-title">Chat</div>
+<section id="chat-window" class="chat-float" role="dialog" aria-label="Chat-Window" [attr.aria-modal]="false" [class.open]="open">
+  <header class="chat-header">
+    <div class="chat-title">{{ activeChat?.title || 'Chat' }}</div>
     <div class="chat-actions">
-      <button @leave id="closeBtn" class="icon-btn" title="Close" aria-label="Close" (click)="close()">✕</button>
+      <button id="closeBtn" class="icon-btn" title="Close" aria-label="Close" (click)="close()">✕</button>
     </div>
   </header>
 
-  <main id="chat-body" class="chat-body" tabindex="-1" #chatBody aria-live="polite">
-    <div *ngFor="let m of messages" class="msg" [class.user]="m.who === 'user'" [class.bot]="m.who === 'bot'">
-      {{ m.text }}
-    </div>
-  </main>
+  <div class="chat-content">
+    <aside class="chat-sidebar" aria-label="List of Chats">
+      <div class="sidebar-header">
+        <h2 class="sidebar-title">Chats</h2>
+        <button class="new-chat-btn" (click)="newChat()" aria-label="Start new Chat">+ New Chat</button>
+      </div>
+
+      <ul class="chat-list" role="listbox" [attr.aria-activedescendant]="'chat-' + activeChat?.id">
+        <li *ngFor="let c of chats" class="chat-list-item" [class.selected]="c.id === activeChat?.id" role="option" [id]="'chat-' + c.id" tabindex="0" (click)="selectChat(c.id)" (keydown.enter)="selectChat(c.id)" (keydown.space)="selectChat(c.id)">
+          <div class="chat-list-title">{{ c.title }}</div>
+          <div class="chat-list-meta">{{ c.messages?.length || 0 }} Messages</div>
+        </li>
+      </ul>
+    </aside>
+
+    <main id="chat-body" class="chat-body" tabindex="-1" aria-live="polite">
+      <div *ngFor="let m of activeChat?.messages" class="msg" [class.user]="m.who === 'user'" [class.bot]="m.who === 'bot'">{{ m.text }}</div>
+    </main>
+  </div>
 
   <footer class="chat-input">
     <label for="input" class="sr-only">Message</label>
-    <input id="input" type="text" placeholder="Type message here..." #chatInput
-           (keydown.enter)="send(chatInput)" autocomplete="off" />
+    <input id="input" type="text" placeholder="Enter message..." #chatInput (keydown.enter)="send(chatInput)" autocomplete="off" />
     <button id="sendBtn" class="send-btn" (click)="send(chatInput)">Send</button>
   </footer>
 
-  <div id="resizer" class="resizer" aria-hidden="true" (mousedown)="startResize($event)"></div>
+  <div id="resizer" class="resizer" aria-hidden="true"></div>
 </section>

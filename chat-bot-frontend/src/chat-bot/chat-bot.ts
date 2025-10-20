@@ -1,120 +1,100 @@
-import {Component, ElementRef, ViewChild, HostListener} from '@angular/core';
-import {NgForOf, NgIf} from "@angular/common";
-import {MatIconModule} from '@angular/material/icon';
-import {animate, style, transition, trigger} from '@angular/animations';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { MatIconModule } from '@angular/material/icon';
 
+type Who = 'user' | 'bot';
 
-type Drag = { active: boolean; dx: number; dy: number };
-type Size = { active: boolean; w: number; h: number; sx: number; sy: number };
+interface Message {
+  who: Who;
+  text: string;
+  ts: number;
+}
+
+interface Chat {
+  id: string;
+  title: string;
+  messages: Message[];
+}
 
 @Component({
-  selector: 'app-chat',
+  selector: 'app-chat-bot',
   standalone: true,
+  imports: [CommonModule, MatIconModule],
   templateUrl: './chat-bot.html',
-  styleUrls: ['./chat-bot.css'],
-  animations:[
-    trigger('slideFade', [
-      transition(':enter', [
-        style({ opacity: 0, transform: 'translateY(8px) scale(0.98)' }),
-        animate('180ms cubic-bezier(0.2, 0.8, 0.2, 1)',
-          style({ opacity: 1, transform: 'translateY(0) scale(1)' }))
-      ]),
-      transition(':leave', [
-        animate('140ms ease-out',
-          style({ opacity: 0, transform: 'translateY(8px) scale(0.98)' }))
-      ])
-    ]),
-
-    trigger('iconSpin', [
-      transition(':enter', [
-        style({ transform: 'rotate(-20deg)', opacity: 0 }),
-        animate('160ms ease-out', style({ transform: 'rotate(0)', opacity: 1 }))
-      ]),
-      transition(':leave', [
-        animate('120ms ease-in', style({ transform: 'rotate(20deg)', opacity: 0 }))
-      ])
-    ])
-  ],
-  imports: [
-    NgForOf,
-    MatIconModule,
-    NgIf
-  ]
+  styleUrls: ['./chat-bot.css']
 })
-export class ChatComponent {
-    open = false;
-    minimized = false;
-    messages: { who: 'user' | 'bot'; text: string }[] = [];
+export class ChatBot {
+  open = false;
+  chats: Chat[] = [];
+  activeChatId: string | null = null;
 
-    @ViewChild('chatInput') chatInput?: ElementRef<HTMLInputElement>;
-    @ViewChild('chatBody') chatBody?: ElementRef<HTMLElement>;
-    @ViewChild('chatWindow') chatWindow?: ElementRef<HTMLElement>;
-
-    private drag: Drag = { active: false, dx: 0, dy: 0 };
-    private size: Size = { active: false, w: 360, h: 480, sx: 0, sy: 0 };
-
-    toggle() {
-        this.open = !this.open;
-        if (this.open) setTimeout(() => this.chatInput?.nativeElement.focus());
+  constructor() {
+    this.restore();
+    if (this.chats.length === 0) {
+      const first = this.createChat('New Chat');
+      this.chats.push(first);
+      this.activeChatId = first.id;
+      this.persist();
     }
-    close() { this.open = false; }
+  }
 
-    send(inputEl: HTMLInputElement) {
-        const v = inputEl.value.trim();
-        if (!v) return;
-        this.messages.push({ who: 'user', text: v });
-        inputEl.value = '';
-        setTimeout(() => {
-            this.messages.push({ who: 'bot', text: 'Bot: '});
-            this.scrollToBottom();
-        }, 200);
-        this.scrollToBottom();
-    }
+  get activeChat(): Chat | undefined {
+    return this.chats.find(c => c.id === this.activeChatId);
+  }
 
-    startDrag(ev: MouseEvent) {
-        const win = this.chatWindow?.nativeElement;
-        if (!win) return;
-        const r = win.getBoundingClientRect();
-        this.drag = { active: true, dx: ev.clientX - r.left, dy: ev.clientY - r.top };
-        document.body.style.userSelect = 'none';
-    }
+  toggle(): void { this.open = !this.open; }
+  close(): void { this.open = false; }
 
-    startResize(ev: MouseEvent) {
-        const win = this.chatWindow?.nativeElement;
-        if (!win) return;
-        const r = win.getBoundingClientRect();
-        this.size = { active: true, w: r.width, h: r.height, sx: ev.clientX, sy: ev.clientY };
-        document.body.style.userSelect = 'none';
-    }
+  newChat(): void {
+    const c = this.createChat('New Chat');
+    this.chats.unshift(c);
+    this.activeChatId = c.id;
+    this.persist();
+  }
 
-    @HostListener('window:mousemove', ['$event'])
-    onMove(ev: MouseEvent) {
-        const win = this.chatWindow?.nativeElement;
-        if (!win) return;
+  selectChat(id: string): void {
+    if (this.activeChatId === id) return;
+    this.activeChatId = id;
+    this.persist(false);
+  }
 
-        if (this.drag.active) {
-            const x = Math.min(window.innerWidth - 40, Math.max(10, ev.clientX - this.drag.dx));
-            const y = Math.min(window.innerHeight - 40, Math.max(10, ev.clientY - this.drag.dy));
-            Object.assign(win.style, { left: `${x}px`, top: `${y}px`, right: 'auto', bottom: 'auto' });
-        }
+  send(inputEl: HTMLInputElement): void {
+    const value = (inputEl.value || '').trim();
+    if (!value) return;
+    const chat = this.activeChat;
+    if (!chat) return;
+    chat.messages.push({ who: 'user', text: value, ts: Date.now() });
+    if (chat.title === 'New Chat') chat.title = this.deriveTitle(value);
+    chat.messages.push({ who: 'bot', text: 'Response', ts: Date.now() + 1 });
+    inputEl.value = '';
+    this.persist();
+    setTimeout(() => {
+      const body = document.getElementById('chat-body');
+      if (body) body.scrollTop = body.scrollHeight;
+    });
+  }
 
-        if (this.size.active) {
-            const w = Math.max(280, this.size.w + (ev.clientX - this.size.sx));
-            const h = Math.max(320, this.size.h + (ev.clientY - this.size.sy));
-            Object.assign(win.style, { width: `${w}px`, height: `${h}px` });
-        }
-    }
+  private createChat(title: string): Chat {
+    return { id: crypto.randomUUID(), title, messages: [] };
+  }
 
-    @HostListener('window:mouseup')
-    onUp() {
-        if (this.drag.active || this.size.active) document.body.style.userSelect = '';
-        this.drag.active = false;
-        this.size.active = false;
-    }
+  private deriveTitle(seed: string): string {
+    const clean = seed.replace(/\s+/g, ' ').trim();
+    return clean.length > 28 ? clean.slice(0, 27) + '…' : (clean || 'New Chat');
+  }
 
-    private scrollToBottom() {
-        const el = this.chatBody?.nativeElement;
-        if (el) el.scrollTop = el.scrollHeight;
-    }
+  private persist(updateTimestamp = true): void {
+    const payload = { chats: this.chats, activeChatId: this.activeChatId, ts: updateTimestamp ? Date.now() : undefined };
+    try { localStorage.setItem('chatbot_state', JSON.stringify(payload)); } catch {}
+  }
 
+  private restore(): void {
+    try {
+      const raw = localStorage.getItem('chatbot_state');
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed?.chats)) this.chats = parsed.chats;
+      if (typeof parsed?.activeChatId === 'string') this.activeChatId = parsed.activeChatId;
+    } catch {}
+  }
 }

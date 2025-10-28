@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,7 +26,7 @@ public class Chat {
     private LocalDateTime createdAt;
 
     @ElementCollection
-    private List<Message> messages;
+    private List<Message> messages = new ArrayList<>();
 
     public Chat() {
     }

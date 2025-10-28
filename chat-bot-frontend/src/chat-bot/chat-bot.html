@@ -1,8 +1,11 @@
-<button *ngIf="!open" id="chatLauncher" class="chat-launcher" aria-haspopup="dialog" aria-controls="chat-window" [attr.aria-expanded]="open" title="Open Chat" (click)="toggle()">
+<button *ngIf="!open" id="chatLauncher" class="chat-launcher" aria-haspopup="dialog"
+        aria-controls="chat-window" [attr.aria-expanded]="open" title="Open Chat" (click)="toggle()">
   <mat-icon>chat</mat-icon>
 </button>
 
-<section id="chat-window" class="chat-float" role="dialog" aria-label="Chat-Window" [attr.aria-modal]="false" [class.open]="open">
+<section id="chat-window" class="chat-float" role="dialog" aria-label="Chat Window"
+         [attr.aria-modal]="false" [class.open]="open">
+
   <header class="chat-header">
     <div class="chat-title">{{ activeChat?.title || 'Chat' }}</div>
     <div class="chat-actions">
@@ -18,7 +21,9 @@
       </div>
 
       <ul class="chat-list" role="listbox" [attr.aria-activedescendant]="'chat-' + activeChat?.id">
-        <li *ngFor="let c of chats" class="chat-list-item" [class.selected]="c.id === activeChat?.id" role="option" [id]="'chat-' + c.id" tabindex="0" (click)="selectChat(c.id)" (keydown.enter)="selectChat(c.id)" (keydown.space)="selectChat(c.id)">
+        <li *ngFor="let c of chats" class="chat-list-item" [class.selected]="c.id === activeChat?.id"
+            role="option" [id]="'chat-' + c.id" tabindex="0"
+            (click)="selectChat(c.id)" (keydown.enter)="selectChat(c.id)" (keydown.space)="selectChat(c.id)">
           <div class="chat-list-title">{{ c.title }}</div>
           <div class="chat-list-meta">{{ c.messages?.length || 0 }} Messages</div>
         </li>
@@ -26,13 +31,17 @@
     </aside>
 
     <main id="chat-body" class="chat-body" tabindex="-1" aria-live="polite">
-      <div *ngFor="let m of activeChat?.messages" class="msg" [class.user]="m.who === 'user'" [class.bot]="m.who === 'bot'">{{ m.text }}</div>
+      <div *ngFor="let m of activeChat?.messages" class="msg"
+           [class.user]="m.who === 'user'" [class.bot]="m.who === 'bot'">
+        {{ m.text }}
+      </div>
     </main>
   </div>
 
   <footer class="chat-input">
     <label for="input" class="sr-only">Message</label>
-    <input id="input" type="text" placeholder="Enter message..." #chatInput (keydown.enter)="send(chatInput)" autocomplete="off" />
+    <input id="input" type="text" placeholder="Enter message..." #chatInput
+           (keyup.enter)="send(chatInput)" autocomplete="off" />
     <button id="sendBtn" class="send-btn" (click)="send(chatInput)">Send</button>
   </footer>
 

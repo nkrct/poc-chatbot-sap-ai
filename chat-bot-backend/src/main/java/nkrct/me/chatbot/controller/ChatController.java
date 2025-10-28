@@ -4,13 +4,13 @@ import nkrct.me.chatbot.entity.Chat;
 import nkrct.me.chatbot.service.ChatService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/chat")
+@CrossOrigin(origins = "http://localhost:4200")
 public class ChatController {
 
     private final ChatService chatService;
@@ -29,5 +29,10 @@ public class ChatController {
     public ResponseEntity<Chat> saveMessage(@RequestParam String message, @RequestParam String sender, @RequestParam String sendAt, @RequestParam String chatId) {
         Chat chat = chatService.saveMessage(message, sender, sendAt, chatId);
         return new ResponseEntity<>(chat, HttpStatus.OK);
+    }
+
+    @GetMapping("/get_chats")
+    public List<Chat> getChatsByUsername(@RequestParam String username) {
+        return chatService.getChats(username);
     }
 }
